@@ -1,0 +1,838 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="엽 활성화">
+<meta name="theme-color" content="#131311">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>엽 활성화 트레이너</title>
+<style>
+:root{
+  --bg:#f3f1ec; --panel:#faf9f6; --ink:#1b1a17; --muted:#6d6a63; --faint:#9b978e; --line:#dcd8cf; --soft:#e9e6df;
+  --hL:#1f6a64; --hR:#9c3d27; --hemi:var(--hL); --on-hemi:#fff;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#131311; --panel:#1b1a18; --ink:#ebe8e1; --muted:#a19d94; --faint:#706c64; --line:#33312d; --soft:#262522;
+    --hL:#6cb8ae; --hR:#e3866b; --on-hemi:#111;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#131311; --panel:#1b1a18; --ink:#ebe8e1; --muted:#a19d94; --faint:#706c64; --line:#33312d; --soft:#262522;
+  --hL:#6cb8ae; --hR:#e3866b; --on-hemi:#111;
+}
+body[data-hemi="R"]{--hemi:var(--hR)}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR","Malgun Gothic",sans-serif;
+  -webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit}
+.wrap{max-width:760px;margin:0 auto;padding:max(20px,env(safe-area-inset-top)) 16px 40px}
+header.top{margin:6px 0 20px;padding-bottom:14px;border-bottom:2px solid var(--ink)}
+header.top h1{font-size:24px;margin:0;letter-spacing:-.03em;font-weight:800}
+header.top .sub{color:var(--muted);font-size:13px;margin-top:4px}
+.hemi{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:4px 0 16px;border-bottom:1px solid var(--line)}
+.hemi .lbl{font-size:13px;color:var(--muted)}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:2px;gap:2px}
+.seg button{border:0;background:transparent;padding:7px 12px;cursor:pointer;font-size:14px;min-height:36px;border-radius:6px;color:var(--muted)}
+.seg button.on{background:var(--ink);color:var(--bg);font-weight:600}
+#hemiSeg button.on{background:var(--hemi);color:var(--on-hemi)}
+.hemi .rule{font-size:13.5px;color:var(--muted)}
+.hemi .rule b{color:var(--hemi)}
+.lobe{margin-top:26px}
+.lobe h2{font-size:12px;color:var(--faint);margin:0 0 4px;font-weight:700;letter-spacing:.12em}
+.grid{display:grid;grid-template-columns:1fr 1fr;column-gap:28px}
+@media (max-width:620px){.grid{grid-template-columns:1fr}}
+.card{display:flex;align-items:center;gap:10px;background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:13px 2px;text-align:left;cursor:pointer;width:100%}
+.card .cmain{flex:1;min-width:0}
+.card:hover .nm{color:var(--hemi)}
+.card .nm{font-weight:700;font-size:16.5px;letter-spacing:-.01em}
+.card .fl{font-size:12.5px;color:var(--muted);margin-top:1px}
+.card .meta{display:flex;gap:5px;flex-shrink:0}
+.card .chev{color:var(--faint);font-size:15px}
+.pill{font-size:11px;padding:2px 7px;border-radius:999px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.back{border:0;background:transparent;color:var(--muted);cursor:pointer;padding:14px 0 4px;font-size:14px}
+.panel{padding:16px 0;border-bottom:1px solid var(--line)}
+.panel:first-of-type{padding-top:8px}
+.rtitle{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.rtitle h2{margin:0;font-size:28px;letter-spacing:-.03em;font-weight:800}
+.rtitle .fl{color:var(--muted);font-size:13.5px}
+.about{margin:8px 0 0;line-height:1.65;font-size:15px}
+.sided{font-size:13.5px;margin-top:8px;color:var(--muted)}
+.sided b{color:var(--hemi)}
+.tabs{display:flex;gap:18px;flex-wrap:wrap;margin-top:16px;border-bottom:1px solid var(--line)}
+.tabs button{border:0;background:transparent;padding:8px 0 10px;cursor:pointer;font-size:15px;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px}
+.tabs button.on{color:var(--ink);font-weight:700;border-bottom-color:var(--ink)}
+.mhead{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.mhead b{font-size:17px}
+.tags{font-size:11.5px;color:var(--faint);letter-spacing:.06em}
+.how{margin:10px 0 0;padding-left:20px;line-height:1.7;font-size:15px}
+.how li::marker{color:var(--faint)}
+.note{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.6}
+details.ev{margin-top:12px;font-size:13px;color:var(--muted)}
+details.ev summary{cursor:pointer;color:var(--ink);font-weight:600;list-style:none}
+details.ev summary::-webkit-details-marker{display:none}
+details.ev summary::before{content:'+ ';color:var(--faint)}
+details.ev[open] summary::before{content:'− '}
+.params{display:grid;gap:14px;margin-top:16px}
+.prow{display:grid;grid-template-columns:140px 1fr;gap:12px;align-items:center}
+.prow .pl{font-size:14px;color:var(--muted)}
+.prow .note{font-size:12px;margin-top:5px}
+@media (max-width:560px){.prow{grid-template-columns:1fr;gap:5px}}
+.stepper{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
+.stepper button{border:0;background:transparent;width:42px;height:38px;cursor:pointer;font-size:18px;color:var(--muted)}
+.stepper span{min-width:60px;text-align:center;font-variant-numeric:tabular-nums;font-weight:600}
+.warn{border-left:3px solid var(--hR);padding:2px 0 2px 12px;font-size:13.5px;line-height:1.65;margin-top:16px}
+.warn b{color:var(--ink)}
+.startbar{position:sticky;bottom:0;padding:12px 0 max(12px,env(safe-area-inset-bottom));background:linear-gradient(to top,var(--bg) 70%,transparent);margin-top:8px}
+.start{width:100%;border:0;border-radius:10px;background:var(--hemi);color:var(--on-hemi);font-size:17px;font-weight:700;padding:15px;cursor:pointer;letter-spacing:-.01em}
+.start small{font-weight:500;opacity:.8;margin-left:6px}
+.opts{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;font-size:13.5px;color:var(--muted);align-items:center}
+.opts label{display:flex;gap:6px;align-items:center;cursor:pointer}
+.opts input[type=checkbox]{accent-color:var(--ink);width:16px;height:16px}
+.foot{margin-top:28px;font-size:12.5px;color:var(--faint);line-height:1.65}
+input[type=file]{font-size:13px;max-width:100%}
+
+/* ---------- stage ---------- */
+#stage{position:fixed;inset:0;z-index:50;background:var(--s-bg);color:var(--s-ink);overflow:hidden;
+  --s-bg:#0c0c0e; --s-ink:#f2f2f2; --s-fix:#ffffff; --s-tgt:#ffd23f; --s-cue:#ff7a1a; --s-ok:#3ddc84; --s-bad:#ff4d4d; --s-ring:#5a5a62; --s-go:#2fbf6b; --s-stop:#e5484d;
+  user-select:none;-webkit-user-select:none;touch-action:manipulation}
+#stage.light{--s-bg:#f3f2ee; --s-ink:#111; --s-fix:#111; --s-tgt:#1f5fe0; --s-cue:#d2560a; --s-ok:#118a4a; --s-bad:#c62828; --s-ring:#b7b5ae}
+#stage[hidden]{display:none}
+#field{position:absolute;inset:0}
+#field.texture{background-image:repeating-linear-gradient(45deg, rgba(128,128,128,.22) 0 2vmin, transparent 2vmin 4vmin), repeating-linear-gradient(-45deg, rgba(128,128,128,.14) 0 1vmin, transparent 1vmin 3vmin)}
+.dot{position:absolute;transform:translate(-50%,-50%);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;color:#111;line-height:1}
+.dot.fix{background:var(--s-fix)}
+.dot.tgt{background:var(--s-tgt)}
+.dot.cue{background:var(--s-cue)}
+.dot.ok{background:transparent;border:.7vmin solid var(--s-ok)}
+.dot.ring{background:transparent;border:.5vmin solid var(--s-ring);color:var(--s-ink)}
+.dot.ring.lit{background:var(--s-tgt);border-color:var(--s-tgt);color:#111}
+.dot.ring.trail{background:rgba(255,210,63,.32);border-color:var(--s-tgt)}
+.dot.tgt.trail{opacity:.32}
+.dot.ring.ans{background:var(--s-ok);border-color:var(--s-ok);color:#111}
+.dot.go{background:var(--s-go);color:#fff}
+.dot.stop{background:var(--s-stop);color:#fff}
+.dot.miss{background:var(--s-bad)}
+.shape{position:absolute;transform:translate(-50%,-50%);cursor:pointer}
+.shape.hit{outline:.6vmin solid var(--s-ok);outline-offset:.8vmin}
+.shape.wrong{animation:shake .25s}
+@keyframes shake{25%{margin-left:-1vmin}75%{margin-left:1vmin}}
+.txt{position:absolute;left:50%;transform:translate(-50%,-50%);text-align:center;font-weight:700;width:92%;line-height:1.35}
+.txt.small{font-weight:500;opacity:.8}
+.txt.go{color:var(--s-go)} .txt.stop{color:var(--s-stop)}
+#hud{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:calc(env(safe-area-inset-top) + 8px) 12px 8px;font-size:14px;opacity:.55;pointer-events:none;z-index:3}
+#hud:hover{opacity:1}
+#hud .btns{display:flex;gap:6px;pointer-events:auto}
+#hud button{border:1px solid var(--s-ring);background:transparent;border-radius:6px;padding:6px 11px;cursor:pointer;color:var(--s-ink);font-size:13px}
+#veil{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55);color:#fff;font-size:6vmin;font-weight:700;z-index:4}
+#veil.on{display:flex}
+.pimg{position:absolute;left:50%;top:52%;max-width:72vmin;max-height:72vmin;transition:transform .6s}
+.keypad{position:absolute;left:50%;top:60%;transform:translate(-50%,-50%);display:grid;grid-template-columns:repeat(3, 15vmin);gap:1.6vmin}
+.keypad button{height:11vmin;font-size:5vmin;border-radius:2vmin;border:.3vmin solid var(--s-ring);background:transparent;color:var(--s-ink);cursor:pointer}
+.endbtns{position:absolute;left:50%;top:62%;transform:translateX(-50%);display:flex;gap:2vmin}
+.endbtns button{font-size:3.6vmin;padding:1.6vmin 3.6vmin;border-radius:1.6vmin;border:.3vmin solid var(--s-ring);background:transparent;color:var(--s-ink);cursor:pointer}
+</style>
+</head>
+<body>
+<div class="wrap" id="app">
+  <header class="top">
+    <div>
+      <h1>엽 활성화 트레이너</h1>
+      <div class="sub">Lateralization &amp; Lobes 실습 · 강사본 5장 과제 화면판</div>
+    </div>
+  </header>
+  <div class="hemi">
+    <span class="lbl">자극할 반구</span>
+    <span class="seg" id="hemiSeg"><button data-h="L">좌반구</button><button data-h="R">우반구</button></span>
+    <span class="rule" id="hemiRule"></span>
+  </div>
+  <main id="home"></main>
+  <main id="setup" hidden></main>
+</div>
+
+<div id="stage" hidden>
+  <div id="field"></div>
+  <div id="hud"><span id="hudText"></span><span class="btns"><button id="bPause" title="P">멈춤</button><button id="bFull">전체화면</button><button id="bExit" title="Esc">끝내기</button></span></div>
+  <div id="veil">멈춤 · 탭하면 계속</div>
+</div>
+
+<script>
+"use strict";
+const $=s=>document.querySelector(s);
+const store={get(k,d){try{const v=localStorage.getItem('lat_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},
+             set(k,v){try{localStorage.setItem('lat_'+k,JSON.stringify(v))}catch(e){}}};
+const state={hemi:store.get('hemi','L'), region:null, mode:null, photos:[]};
+const side=()=>state.hemi==='L'?1:-1;              // +1: 표적 오른쪽
+const IOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const sideWord=()=>state.hemi==='L'?'오른쪽':'왼쪽';
+const rand=(a,b)=>a+Math.random()*(b-a);
+const randi=(a,b)=>Math.floor(rand(a,b+1));
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=randi(0,i);[a[i],a[j]]=[a[j],a[i]]}return a};
+
+/* ---------- audio ---------- */
+let AC=null;
+function audio(){ if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){AC=null}} if(AC&&AC.state==='suspended')AC.resume(); return AC; }
+function beep(freq=880,dur=.12,pan=0,vol=.28){
+  const ac=audio(); if(!ac) return;
+  const t=ac.currentTime,o=ac.createOscillator(),g=ac.createGain();
+  o.frequency.value=freq; g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(vol,t+.006); g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  o.connect(g);
+  if(ac.createStereoPanner){const p=ac.createStereoPanner();p.pan.value=pan;g.connect(p);p.connect(ac.destination)} else g.connect(ac.destination);
+  o.start(t); o.stop(t+dur+.03);
+}
+
+/* ---------- runner ---------- */
+const RUN={abort:false,paused:false,tap:false,onClick:null,lockBg:false,count:0};
+class Abort extends Error{}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+async function wait(ms){
+  let left=ms,last=performance.now();
+  while(left>0){ if(RUN.abort) throw new Abort(); await sleep(Math.min(left,15)); const now=performance.now(); if(!RUN.paused) left-=now-last; last=now; }
+  if(RUN.abort) throw new Abort();
+}
+async function waitTap(timeout=Infinity,cond=null){
+  RUN.tap=false; let t=0,last=performance.now();
+  while(!RUN.tap && !(cond&&cond())){
+    if(RUN.abort) throw new Abort(); await sleep(15);
+    const now=performance.now(); if(!RUN.paused) t+=now-last; last=now; if(t>=timeout) return false;
+  }
+  RUN.tap=false; return true;
+}
+const field=()=>$('#field');
+function clear(){ field().innerHTML=''; field().className=''; }
+let P={};
+function dot(x,y,o={}){
+  const e=document.createElement('div'); e.className='dot '+(o.cls||'tgt');
+  const s=o.size??P.size??5; e.style.left=x+'%'; e.style.top=y+'%'; e.style.width=e.style.height=s+'vmin';
+  if(o.label!=null){e.textContent=o.label; e.style.fontSize=(s*.48)+'vmin'}
+  field().appendChild(e); return e;
+}
+const fix=()=>dot(50,50,{cls:'fix',size:Math.max(1.6,(P.size||5)*.4)});
+function txt(t,o={}){
+  const e=document.createElement('div'); e.className='txt '+(o.cls||'');
+  e.style.top=(o.y??50)+'%'; e.style.fontSize=(o.size||6)+'vmin'; e.innerHTML=t; field().appendChild(e); return e;
+}
+function hud(s){ $('#hudText').textContent=s; }
+
+/* 겹치지 않는 표적 배치 (% 좌표) */
+function slots(n,rect,sizeV){
+  const W=innerWidth,H=innerHeight,vm=Math.min(W,H)/100;
+  let minPx=sizeV*vm*2.1, out=[];
+  for(let tries=0;tries<6;tries++){
+    out=[];
+    for(let k=0;k<4000&&out.length<n;k++){
+      const x=rand(rect[0],rect[1]),y=rand(rect[2],rect[3]);
+      if(out.every(p=>Math.hypot((p.x-x)*W/100,(p.y-y)*H/100)>=minPx)) out.push({x,y});
+    }
+    if(out.length===n) return out; minPx*=.85;
+  }
+  return out;
+}
+const halfRect=()=>side()===1?[57,94,16,86]:[6,43,16,86];
+const fullRect=[6,94,16,86];
+const AMP={small:14,mid:26,large:42};
+
+/* ---------- 공통 파라미터 ---------- */
+const pSize={k:'size',l:'원 크기',t:'seg',o:[[3.5,'작게'],[5,'보통'],[8,'크게']],d:5};
+const pAmp={k:'amp',l:'눈 이동 폭',t:'seg',o:[['small','작게'],['mid','중간'],['large','크게']],d:'mid',hint:'가까우면 작은 saccade, 멀면 큰 saccade'};
+const pReps=(d=10,max=40)=>({k:'reps',l:'반복 횟수',t:'num',min:1,max,step:1,d});
+const pSound={k:'sound',l:'신호음',t:'seg',o:[[1,'켜기'],[0,'끄기']],d:1};
+const pFeedback={k:'fb',l:'정답 위치 보여주기',t:'seg',o:[[1,'켜기'],[0,'끄기']],d:1};
+
+/* ---------- 모드 ---------- */
+const M={};
+
+M.pro={id:'pro',name:'시각유도 saccade',tags:['FNS'],
+  how:['가운데 흰 점을 본다.',()=>`노란 원이 <b>${sideWord()}</b> 시야 어딘가에 뜨면 가능한 한 빠르게 눈만 옮긴다.`,'원이 사라지고 흰 점이 다시 뜨면 가운데로 돌아온다.'],
+  note:'FEF 소견의 핵심이 속도이므로 가장 직접적인 과제다. 표적 위치와 출발 시점이 매번 무작위라 미리 출발할 수 없다. 표적은 목표 반구 반대쪽 시야에만 뜬다(5.3.1, 5.6.1).',
+  params:[{k:'range',l:'표적 범위',t:'seg',o:[['near','가운데 근처'],['half','반쪽 전체']],d:'half'},
+    {k:'dwell',l:'표적 표시 시간',t:'num',min:300,max:3000,step:100,d:1000,fmt:v=>(v/1000).toFixed(1)+'초'},
+    {k:'gap',l:'고정점 시간',t:'seg',o:[['s','0.5–1초'],['m','1–2초'],['l','2–3초']],d:'m',hint:'매번 이 범위 안에서 무작위로 정해진다'},
+    pSize,pSound,pReps(10)],
+  async run(){
+    const G={s:[500,1000],m:[1000,2000],l:[2000,3000]}[P.gap];
+    const rect=P.range==='near'?(side()===1?[57,76,30,70]:[24,43,30,70]):halfRect();
+    let last=null;
+    for(let i=1;i<=P.reps;i++){ hud(`${i} / ${P.reps}`);
+      clear(); fix(); await wait(rand(G[0],G[1]));
+      let p; for(let k=0;k<30;k++){ p={x:rand(rect[0],rect[1]),y:rand(rect[2],rect[3])}; if(!last||Math.hypot(p.x-last.x,p.y-last.y)>9) break; }
+      last=p; clear(); dot(p.x,p.y); if(P.sound) beep(); await wait(P.dwell); RUN.count=i; }
+    clear(); fix(); await wait(600);
+  }};
+
+M.mem2d={id:'mem2d',name:'기억유도 saccade (순서)',tags:['FNS','ANT'],
+  how:[()=>`가운데 흰 점을 본 채로, <b>${sideWord()}</b> 시야에 노란 원이 하나씩 차례로 켜졌다 꺼지는 것을 기억한다.`,'[가림] 다 보여 준 뒤 흰 점만 남는다. [보임] 빈 고리가 남아 순서만 기억하면 된다.','신호음이 나면 기억한 순서대로 눈으로 따라가거나 손으로 짚는다.','눈: 끝나면 탭(Space). 손: 화면을 표적 수만큼 짚으면 넘어간다(허공·벽을 짚을 때는 파트너가 Space).','초록 원이 정답 순서대로 다시 켜진다.'],
+  note:'위치를 몇 초 붙들고 그 순서를 재현하는 작업기억 과제(5.3.3 시행 변형). 보임/가림을 같은 방식으로 비교해 "지시를 따르는 수행"과 "위치를 붙드는 수행"을 나눈다. 표적 수·지연 길이는 정상 기준·처방값이 아니다. 손은 목표 반구 반대쪽 손.',
+  params:[{k:'n',l:'표적 수',t:'num',min:1,max:6,step:1,d:3},
+    {k:'flash',l:'표적 표시',t:'seg',o:[[400,'0.4초'],[700,'0.7초'],[1000,'1초']],d:700},
+    {k:'cond',l:'조건',t:'seg',o:[['hide','가림'],['show','보임']],d:'hide'},
+    {k:'delay',l:'기억 지연',t:'seg',o:[[1,'1초'],[3,'3초'],[6,'6초'],[10,'10초']],d:3},
+    {k:'resp',l:'재현 방법',t:'seg',o:[['eye','눈으로 따라가기'],['hand','손으로 짚기']],d:'eye'},
+    pFeedback,pSize,pSound,pReps(8)],
+  async run(){
+    const rect=halfRect();
+    for(let i=1;i<=P.reps;i++){ hud(`${i} / ${P.reps}`);
+      clear(); const f=fix(); await wait(rand(900,1500));
+      const S=slots(P.n,rect,P.size);
+      if(P.cond==='show') S.forEach(p=>dot(p.x,p.y,{cls:'ring'}));
+      for(const p of S){ const t=dot(p.x,p.y); if(P.sound) beep(700,.06); await wait(P.flash); t.remove(); await wait(250); }
+      await wait(P.delay*1000);
+      f.remove(); if(P.sound) beep(990,.15);
+      if(P.resp==='hand'){
+        const head=txt(`${sideWord()} 손으로 순서대로 짚기`,{y:8,size:3.4,cls:'small'});
+        let taps=0; RUN.onClick=ev=>{ taps++; const m=dot(ev.clientX/innerWidth*100,ev.clientY/innerHeight*100,{cls:'miss',size:1.8}); m.textContent=''; };
+        await waitTap(Infinity,()=>taps>=S.length); RUN.onClick=null; head.remove(); await wait(300);
+      } else { txt('기억한 순서대로 눈으로 · 끝나면 탭',{y:8,size:3.4,cls:'small'}); await waitTap(); }
+      if(P.fb){ for(let k=0;k<S.length;k++){ const e=dot(S[k].x,S[k].y,{cls:'ok',label:k+1}); e.style.color='var(--s-ok)'; await wait(450); } await wait(900); }
+      RUN.count=i; }
+  }};
+
+M.anti={id:'anti',name:'안티-saccade (소리 규칙)',tags:['FNS','가설'],
+  how:['가운데 흰 점을 본다. 양옆에 빈 원이 두 개 있다.','소리가 난 뒤 한쪽 원에 색이 채워진다.','<b>소리 1번 → 색이 채워진 원</b>을 본다.<br><b>빠르게 2번 → 빈 원</b>을 본다.','초록 고리가 정답이다. 본 뒤에는 가운데로 돌아온다.'],
+  note:'DLPFC 안티-saccade(5.3.3)에 소리 규칙을 얹어, 시행마다 "볼 곳"과 "보지 말아야 할 곳"이 바뀌게 만든 ANT 설계다. 반사 억제와 규칙 전환을 함께 요구한다는 해석은 가설이며 효과는 재검사로만 판단한다. 눈은 양쪽으로 모두 움직인다.',
+  params:[pAmp,{k:'dbl',l:'"2번 소리" 비율',t:'seg',o:[[.3,'30%'],[.5,'50%'],[.7,'70%']],d:.5},
+    {k:'soa',l:'소리 → 채움 간격',t:'seg',o:[[0,'바로'],[300,'0.3초'],[600,'0.6초']],d:300,hint:'짧을수록 규칙을 미리 준비할 시간이 줄어 어렵다'},
+    {k:'resp',l:'반응 시간',t:'seg',o:[[800,'0.8초'],[1200,'1.2초'],[1800,'1.8초']],d:1200},
+    pFeedback,pSize,pReps(16,60)],
+  async run(){
+    const a=AMP[P.amp];
+    for(let i=1;i<=P.reps;i++){ hud(`${i} / ${P.reps}`);
+      clear(); fix(); const L=dot(50-a,50,{cls:'ring'}),R=dot(50+a,50,{cls:'ring'});
+      await wait(rand(1000,2000));
+      const two=Math.random()<P.dbl, right=Math.random()<.5;
+      beep(880,.07,0,.4); if(two){ await wait(130); beep(880,.07,0,.4); }
+      await wait(P.soa); (right?R:L).classList.add('lit'); await wait(P.resp);
+      const ansRight=two?!right:right;
+      if(P.fb){ dot(50+(ansRight?a:-a),50,{cls:'ok',size:(P.size||5)*1.6}); await wait(700); }
+      RUN.count=i; }
+  }};
+
+M.seq={id:'seq',name:'순서 saccade',tags:['FNS'],
+  how:['번호 원들이 반대쪽에 깔린다. 노란색으로 켜지는 순서대로 눈으로 따라간다.','"눈 감기"가 뜨면 눈을 감고, 신호음 두 번에 뜬다.','같은 순서(또는 거꾸로)를 기억해서 눈으로 다시 본다. 다 봤으면 탭.','초록으로 정답 순서가 재생된다.'],
+  note:'SEF 저활성 소견은 순서 붕괴다. 순서 길이·속도·지연·거꾸로를 조절한다. "눈 먼저→손" 켜면 눈과 손의 오류를 나눠 본다(5.3.2 시행 변형, ANT 방법).',
+  params:[{k:'n',l:'표적 수',t:'num',min:3,max:9,step:1,d:6},{k:'len',l:'순서 길이',t:'num',min:2,max:8,step:1,d:3},
+    {k:'speed',l:'보여주는 속도',t:'seg',o:[[500,'빠름'],[850,'보통'],[1300,'느림']],d:850},
+    {k:'delay',l:'눈 감기 지연',t:'seg',o:[[0,'없음'],[2,'2초'],[4,'4초'],[6,'6초']],d:2},
+    {k:'order',l:'회상 방향',t:'seg',o:[['fwd','같은 순서'],['rev','거꾸로']],d:'fwd'},
+    {k:'pace',l:'회상 진행',t:'seg',o:[['tap','탭으로 넘김'],['auto','자동']],d:'tap'},
+    {k:'hand',l:'눈 먼저→손',t:'seg',o:[[0,'끄기'],[1,'켜기']],d:0},
+    {k:'layout',l:'배치',t:'seg',o:[['half','반대쪽 절반'],['full','화면 전체']],d:'half'},
+    {k:'relayout',l:'매번 새 배치',t:'seg',o:[[0,'고정(벽 스티커처럼)'],[1,'매번 바꿈']],d:0},
+    pSize,pSound,pReps(6,20)],
+  async run(){
+    const rect=P.layout==='half'?halfRect():fullRect; let S=slots(P.n,rect,P.size);
+    const draw=()=>S.map((p,k)=>dot(p.x,p.y,{cls:'ring',label:k+1}));
+    for(let i=1;i<=P.reps;i++){ hud(`${i} / ${P.reps}`);
+      if(P.relayout&&i>1) S=slots(P.n,rect,P.size);
+      clear(); let E=draw(); txt('보기',{y:8,size:3.4,cls:'small'}); await wait(900);
+      const seq=[]; while(seq.length<P.len){const k=randi(0,S.length-1); if(seq[seq.length-1]!==k) seq.push(k)}
+      for(const k of seq){ E[k].classList.add('lit'); if(P.sound) beep(700,.08); await wait(P.speed); E[k].classList.remove('lit'); await wait(180); }
+      if(P.delay>0){ clear(); txt('눈 감기',{size:8}); await wait(P.delay*1000); if(P.sound){beep(880,.1);await wait(160);beep(880,.1)} }
+      clear(); E=draw();
+      const target=P.order==='rev'?seq.slice().reverse():seq;
+      const head=txt(P.order==='rev'?'거꾸로 보기':'같은 순서로 보기',{y:8,size:3.4,cls:'small'});
+      if(P.hand){
+        for(let j=0;j<target.length;j++){ head.innerHTML=`${j+1}번째: 눈 먼저`; await wait(P.speed*1.3);
+          if(P.sound) beep(1100,.1); head.innerHTML=`${j+1}번째: 손으로 짚기`; await wait(P.speed*1.6); }
+      } else if(P.pace==='tap'){ head.innerHTML+=' · 끝나면 탭'; await waitTap(); }
+      else await wait(target.length*1500);
+      head.innerHTML='정답 '+target.map(k=>k+1).join(' → ');
+      for(const k of target){ E[k].classList.add('ans'); await wait(Math.max(350,P.speed*.7)); E[k].classList.remove('ans'); await wait(120); }
+      await wait(1200); RUN.count=i; }
+  }};
+
+function genPattern(n,kinds,C,R,maxM=2){
+  const dirs=[[1,0],[0,1],[-1,0],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
+  const rot=(v,cw)=>cw?[-v[1],v[0]]:[v[1],-v[0]];
+  for(let t=0;t<2000;t++){
+    const k=kinds[randi(0,kinds.length-1)];
+    const d=dirs[randi(0,7)], m=randi(1,maxM);
+    let d2=dirs[randi(0,7)]; if((d2[0]===d[0]&&d2[1]===d[1])||(d2[0]===-d[0]&&d2[1]===-d[1])) continue;
+    const cw=Math.random()<.5; let cur=[randi(0,C-1),randi(0,R-1)], pts=[cur.slice()], dir=d;
+    for(let j=1;j<n;j++){
+      let v;
+      if(k==='line') v=[d[0]*m,d[1]*m];
+      else if(k==='zig') v=j%2?d:d2;
+      else if(k==='turn'){ v=[dir[0]*Math.ceil(j/2),dir[1]*Math.ceil(j/2)]; dir=rot(dir,cw); }
+      else v=[d[0]*j,d[1]*j];
+      cur=[cur[0]+v[0],cur[1]+v[1]]; pts.push(cur.slice());
+    }
+    if(pts.every(p=>p[0]>=0&&p[0]<C&&p[1]>=0&&p[1]<R) && new Set(pts.map(p=>p+'')).size===pts.length) return pts;
+  }
+  return [...Array(n)].map((_,j)=>[0,j]);
+}
+
+M.predict={id:'predict',name:'예측 saccade',tags:['FNS','ANT'],
+  how:[()=>P_kind()==='time'?`노란 원이 <b>${sideWord()}</b> 시야의 두 자리를 일정한 박자로 오간다. 박자를 익혀 원이 뜨기 직전에 미리 눈을 보낸다.`:`<b>${sideWord()}</b> 시야에 노란 원이 규칙에 따라 몇 군데 차례로 켜진다(번호 없음).`,
+       ()=>P_kind()==='time'?'원이 사라져도(숨김 박) 같은 박자로 계속 오간다. 원이 다시 나타날 때 눈이 이미 그 자리에 있는지 본다.':'"다음은?"이 뜨면 규칙을 찾아 다음 자리로 먼저 눈을 보낸다.',
+       ()=>P_kind()==='time'?'소리를 끄면 시각 박자만으로 예측한다.':'초록 고리가 정답이다. 규칙은 매 시행 방향이 무작위로 새로 정해진다. 쉬움(직선 한 칸)에서 시작해 맞히면 난도를 올린다.'],
+  note:'벽 번호 스티커 과제(5.3.3)의 화면판. 번호를 없애 규칙 자체를 찾게 했고, 타이밍 예측을 더했다(ANT 변형). "계획 말하기"를 켜면 원마다 내일 할 일 하나를 말한다. 손가락으로 함께 짚을 때는 목표 반구 반대쪽 손.',
+  params:[{k:'kind',l:'예측 대상',t:'seg',o:[['space','위치 규칙'],['time','타이밍']],d:'space'},
+    {k:'level',l:'난도',t:'seg',o:[[1,'1 쉬움'],[2,'2 보통'],[3,'3 어려움']],d:1,when:['kind','space'],hint:'1: 직선 한 칸씩 · 2: 직선(1–2칸)·지그재그 · 3: 직선·지그재그·꺾어 돌기·점점 멀리 섞기. 방향은 매번 무작위'},
+    {k:'trail',l:'지나온 자리 남기기',t:'seg',o:[[1,'켜기'],[0,'끄기(어렵게)']],d:1,when:['kind','space']},
+    {k:'shown',l:'보여주는 개수',t:'seg',o:[[3,'3'],[4,'4'],[5,'5']],d:3,when:['kind','space'],hint:'지그재그가 나오면 최소 4개를 보여 준다'},
+    {k:'grid',l:'빈 원 표시',t:'seg',o:[[1,'켜기'],[0,'끄기(어렵게)']],d:1,when:['kind','space']},
+    {k:'speed',l:'보여주는 속도',t:'seg',o:[[600,'빠름'],[1000,'보통'],[1600,'느림']],d:1000,when:['kind','space']},
+    {k:'think',l:'예측 시간',t:'seg',o:[[1500,'1.5초'],[2500,'2.5초'],[4000,'4초']],d:2500,when:['kind','space']},
+    {k:'plan',l:'계획 말하기',t:'seg',o:[[0,'끄기'],[1,'켜기']],d:0,when:['kind','space']},
+    {k:'iv',l:'박자 간격',t:'seg',o:[[500,'0.5초'],[700,'0.7초'],[900,'0.9초'],[1200,'1.2초']],d:700,when:['kind','time']},
+    {k:'lead',l:'보이는 박',t:'seg',o:[[6,'6박'],[10,'10박']],d:6,when:['kind','time']},
+    {k:'blank',l:'숨김 박',t:'seg',o:[[0,'없음'],[2,'2박'],[4,'4박'],[6,'6박']],d:2,when:['kind','time']},
+    {k:'amp',l:'두 자리 거리',t:'seg',o:[['small','가깝게'],['mid','중간'],['large','멀게']],d:'mid',when:['kind','time']},
+    pSize,pSound,pReps(8,30)],
+  async run(){ if(P.kind==='time') return timingRun();
+    const rect=halfRect(), C=5, R=7, cw=(rect[1]-rect[0])/C, ch=(rect[3]-rect[2])/R;
+    const at=c=>({x:rect[0]+(c[0]+.5)*cw, y:rect[2]+(c[1]+.5)*ch});
+    for(let i=1;i<=P.reps;i++){ hud(`${i} / ${P.reps}`);
+      clear(); const G={};
+      if(P.grid) for(let c=0;c<C;c++) for(let r=0;r<R;r++){ const q=at([c,r]); G[c+','+r]=dot(q.x,q.y,{cls:'ring'}); }
+      const lv=P.level||1, kinds=lv===1?['line']:lv===2?['line','zig']:['line','zig','turn','grow'];
+      const kind=kinds[randi(0,kinds.length-1)], shown=kind==='grow'?3:kind==='zig'?Math.max(4,P.shown):P.shown;
+      const pts=genPattern(shown+1,[kind],C,R,lv===1?1:2), seq=pts.slice(0,-1), nx=pts[pts.length-1];
+      const head=txt('차례로 보기',{y:8,size:3.4,cls:'small'}); await wait(800);
+      for(const c of seq){ const q=at(c); const e=P.grid?G[c+'']:dot(q.x,q.y); e.classList.add('lit'); if(P.sound) beep(700,.08);
+        let pl=null; if(P.plan) pl=txt('할 일 하나 말하기',{y:93,size:3.2,cls:'small'});
+        await wait(P.speed*(P.plan?1.8:1)); e.classList.remove('lit'); if(P.trail) e.classList.add('trail'); else if(!P.grid) e.remove(); if(pl) pl.remove(); await wait(200); }
+      head.innerHTML='다음은?'; await wait(P.think);
+      const q=at(nx); if(P.grid) G[nx+''].classList.add('ans'); else dot(q.x,q.y,{cls:'ok'});
+      head.innerHTML='정답'; if(P.sound) beep(990,.12); await wait(1300); RUN.count=i; }
+  }};
+const P_kind=()=>(state.cur&&state.cur.kind)||'space';
+
+async function timingRun(){
+  const s=side(), a=AMP[P.amp], pts=[{x:50+s*6,y:50},{x:50+s*(6+a),y:50}];
+  for(let i=1;i<=P.reps;i++){ hud(`${i} / ${P.reps}`);
+    clear(); txt('박자를 익히고 미리 눈을 보낸다',{y:8,size:3.4,cls:'small'}); await wait(1200);
+    const total=P.lead+P.blank+4; let k=0;
+    for(let j=0;j<total;j++){
+      const vis=j<P.lead||j>=P.lead+P.blank;
+      clear(); if(vis){ dot(pts[k].x,pts[k].y); if(P.sound) beep(700,.06); } else txt('같은 박자로 계속',{y:8,size:3.4,cls:'small'});
+      k^=1; await wait(P.iv); }
+    clear(); txt('쉬기',{size:5,cls:'small'}); await wait(1500); RUN.count=i; }
+}
+
+M.gonogo={id:'gonogo',name:'가 / 멈춰 (Go/No-go)',tags:['FNS','가설'],
+  how:['초록 "가" → 발을 앞으로 내딛거나 발끝을 든다.','빨강 "멈춰" → 아무것도 하지 않고 멈춘다.','앉아서 시작하고, 익숙해지면 선다.'],
+  note:'하지 운동–OFC 짝짓기와 Go/No-go 억제 훈련을 합친 임상 설계. 하지 운동과 OFC를 잇는 해부학적 이유는 아직 확인되지 않았다(5.3.4). 소리만 모드는 신호 양식 바꾸기용.',
+  params:[{k:'ratio',l:'"가" 비율',t:'seg',o:[[.5,'50%'],[.7,'70%'],[.8,'80%']],d:.7},
+    {k:'dur',l:'신호 길이',t:'seg',o:[[200,'0.2초'],[300,'0.3초'],[500,'0.5초'],[800,'0.8초'],[1200,'1.2초']],d:500},
+    {k:'isi',l:'신호 간격',t:'seg',o:[[400,'0.4초'],[700,'0.7초'],[1000,'1초'],[1700,'1.7초'],[2600,'2.6초']],d:1000,hint:'매번 ±25% 범위에서 흔든다'},
+    {k:'mod',l:'신호 양식',t:'seg',o:[['both','화면+소리'],['vis','화면만'],['aud','소리만']],d:'both'},pReps(20,60)],
+  async run(){
+    for(let i=1;i<=P.reps;i++){ hud(`${i} / ${P.reps}`);
+      clear(); await wait(P.isi*rand(.75,1.25));
+      const go=i===1||Math.random()<P.ratio;
+      if(P.mod!=='aud') dot(50,50,{cls:go?'go':'stop',size:34,label:go?'가':'멈춰'}); else txt('●',{size:3,cls:'small'});
+      if(P.mod!=='vis') go?beep(880,.15):beep(300,.45);
+      await wait(P.dur); clear(); RUN.count=i; }
+  }};
+
+M.startstop={id:'startstop',name:'시작–멈춤 신호',tags:['FNS','가설'],
+  how:['"시작" 신호에 맞춰 동작(팔 들기·손 움직임)을 시작한다.','"멈춤" 신호에 바로 멈춘다. 촉각 신호는 파트너가 손으로 건드려 대신한다.',()=>`손은 <b>${sideWord()}</b> 손(목표 반구 반대쪽).`],
+  note:'외부 신호에 반응해 시작·멈추는 전운동 과제. 소견을 과제로 바꾼 설계이며 효과는 가설이다(5.3.5). 스스로 시작하는 과제는 SMA 카드에 있다.',
+  params:[{k:'mod',l:'신호 양식',t:'seg',o:[['both','화면+소리'],['vis','화면만'],['aud','소리만']],d:'both'},
+    {k:'runlen',l:'동작 시간',t:'seg',o:[['s','1–3초'],['m','2–5초'],['l','4–8초']],d:'m'},pReps(8,30)],
+  async run(){
+    const R={s:[1000,3000],m:[2000,5000],l:[4000,8000]}[P.runlen];
+    for(let i=1;i<=P.reps;i++){ hud(`${i} / ${P.reps}`);
+      clear(); txt('준비',{size:5,cls:'small'}); await wait(rand(1200,2400));
+      clear(); if(P.mod!=='aud') txt('시작',{size:22,cls:'go'}); if(P.mod!=='vis') beep(880,.15);
+      await wait(rand(R[0],R[1]));
+      clear(); if(P.mod!=='aud') txt('멈춤',{size:22,cls:'stop'}); if(P.mod!=='vis') beep(300,.45);
+      await wait(1800); RUN.count=i; }
+  }};
+
+M.contTap={id:'contTap',name:'리듬 이어 두드리기',tags:['ANT','확인필요'],
+  how:[()=>`메트로놈 소리에 맞춰 <b>${sideWord()}</b> 손으로 두드린다.`,'소리가 꺼지면 아무 신호 없이 같은 박자로 스스로 계속 두드린다.','"박자 다시 듣기"를 켜면 끝에 메트로놈이 다시 들어온다. 내 두드림과 어긋났는지 듣고 확인한다.','끝 신호(낮은 삐–삐)에서 멈춘다.'],
+  note:'외부 신호 없이 스스로 유지하는 움직임을 겨냥한 ANT 설계다. 강사본은 외부 지시 없이 기억한 순서로 하는 움직임에 안쪽 전운동 영역이 더 쓰인다고 서술하지만, "외부 단서=전운동, 스스로 시작=SMA" 구분은 이 수업에서 확인하지 못했다(5.3.5). 효과는 재검사로만 판단한다.',
+  params:[{k:'bpm',l:'박자',t:'seg',o:[[50,'50'],[70,'70'],[90,'90'],[110,'110']],d:70},
+    {k:'sync',l:'소리 들으며',t:'seg',o:[[8,'8박'],[12,'12박'],[16,'16박']],d:8},
+    {k:'cont',l:'혼자 이어가기',t:'seg',o:[[10,'10초'],[20,'20초'],[30,'30초']],d:20},
+    {k:'check',l:'박자 다시 듣기',t:'seg',o:[[1,'켜기'],[0,'끄기']],d:1},
+    {k:'vis',l:'화면 박자 표시',t:'seg',o:[[1,'켜기'],[0,'끄기']],d:1,hint:'끄면 소리만으로 맞춘다'},
+    pReps(4,12)],
+  async run(){
+    const iv=60000/P.bpm;
+    for(let i=1;i<=P.reps;i++){
+      clear(); txt('준비',{size:6,cls:'small'}); hud(`${i} / ${P.reps}`); await wait(1500);
+      clear(); const pulse=dot(50,50,{cls:'ring',size:12}); if(!P.vis) pulse.style.visibility='hidden';
+      for(let b=0;b<P.sync;b++){ beep(800,.08,0,.48); pulse.classList.add('lit'); setTimeout(()=>pulse.classList.remove('lit'),110);
+        hud(`${i} / ${P.reps} · 소리 ${b+1}/${P.sync}`); await wait(iv); }
+      clear(); txt('혼자 계속',{size:8});
+      for(let left=P.cont;left>0;left--){ hud(`${i} / ${P.reps} · 혼자 ${left}초`); await wait(1000); }
+      if(P.check){ clear(); txt('박자 확인',{size:6,cls:'small'}); for(let b=0;b<4;b++){ beep(800,.08,0,.48); await wait(iv); } }
+      beep(400,.25,0,.48); await wait(300); beep(400,.25,0,.48);
+      clear(); txt('쉬기',{size:5,cls:'small'}); await wait(2500); RUN.count=i; }
+  }};
+
+const TWISTERS=[
+  ['간장 공장 공장장은','강 공장장이고','된장 공장 공장장은','공 공장장이다'],
+  ['내가 그린 기린 그림은','긴 기린 그림이고','네가 그린 기린 그림은','안 긴 기린 그림이다'],
+  ['경찰청 철창살은','외철창살이냐','쌍철창살이냐'],
+  ['들의 콩깍지는','깐 콩깍지인가','안 깐 콩깍지인가'],
+  ['저분은 백 법학박사이고','이분은 박 법학박사이다'],
+  ['박범복 군은','밤벚꽃놀이를 가고','방범복 양은','단풍놀이를 간다'],
+  ['한양양장점 옆','한영양장점','한영양장점 옆','한양양장점'],
+  ['저기 저 뜀틀이','내가 뛸 뜀틀인가','내가 안 뛸 뜀틀인가'],
+];
+function twister(){
+  const t=TWISTERS[randi(0,TWISTERS.length-1)];
+  if(P.chunk==='full') return t.join(' ');
+  if(P.chunk==='half'){ const h=Math.ceil(t.length/2); return (Math.random()<.5?t.slice(0,h):t.slice(t.length-h)).join(' '); }
+  return t[randi(0,t.length-1)];
+}
+M.speak={id:'speak',name:'박자에 맞춰 말하기',tags:['FNS','ANT'],
+  how:['원이 깜빡이는 박자에 맞춰 말한다.','잰말놀이 구절이 뜨면 그 구절을 박자에 맞춰 또박또박 반복해 말한다.','오른손 박자 팔 동작을 함께 한다.'],
+  note:'말 산출 자체가 직접 활성이며 박자에 맞춰 말하기는 5.3.6. 화면의 잰말놀이(전래 발음 연습 문장) 구절은 발음 부하를 올리는 ANT 보조 도구다. 브로카는 좌반구 과제라 손은 오른손.',
+  params:[{k:'bpm',l:'박자',t:'seg',o:[[50,'50'],[70,'70'],[90,'90']],d:70},
+    {k:'chunk',l:'구절 길이',t:'seg',o:[['short','짧게'],['half','반 문장'],['full','전체']],d:'short'},
+    {k:'every',l:'구절 바뀜',t:'seg',o:[[0,'안 보임'],[8,'8박마다'],[16,'16박마다'],[32,'32박마다']],d:16},
+    {k:'min',l:'시간',t:'seg',o:[[1,'1분'],[1.5,'1분 30초'],[2,'2분']],d:1.5},pSize],
+  async run(){ await beatRun({prompts:twister,cardSize:{short:8,half:6.4,full:5}[P.chunk]}); }};
+
+M.beatReg={id:'beatReg',name:'규칙 박자 + 팔 동작',tags:['FNS','ANT'],hemi:'L',
+  how:['일정한 박자를 듣고 박자에 맞춰 팔 동작(또는 손 두드리기)을 한다.','손은 목표 반구 반대쪽 손(좌측두 → 오른손).'],
+  note:'규칙적 박자는 좌측에 연결되는 입력으로 서술된다(5.5.1). 박자–팔 결합은 ANT 응용. 제시 귀는 별도 조건으로 비교한다. 이어폰을 쓰면 귀 선택이 정확하다.',
+  params:[{k:'bpm',l:'박자',t:'seg',o:[[50,'50'],[70,'70'],[90,'90'],[110,'110']],d:70},
+    {k:'ear',l:'들려줄 귀',t:'seg',o:[[0,'양쪽'],[-1,'왼쪽'],[1,'오른쪽']],d:1},
+    {k:'pitch',l:'소리 높이',t:'seg',o:[[1200,'높게'],[600,'중간'],[300,'낮게']],d:600},{k:'vol',l:'음량',t:'seg',o:[[.3,'작게'],[.48,'보통'],[.7,'크게'],[1,'최대']],d:.48},
+    {k:'vis',l:'화면 박자 표시',t:'seg',o:[[1,'켜기'],[0,'끄기']],d:1},
+    {k:'min',l:'시간',t:'seg',o:[[1,'1분'],[1.5,'1분 30초'],[2,'2분']],d:1.5},pSize],
+  async run(){ await beatRun({}); }};
+
+M.beatIrr={id:'beatIrr',name:'불규칙 소리 + 왼손',tags:['FNS','확인필요'],hemi:'R',
+  how:['불규칙한 간격·높이의 소리를 듣는다.','소리가 날 때마다 왼손으로 반응(두드리기·들기)하거나, 소리의 높낮이를 말한다.'],
+  note:'우측 측두는 음악·억양·불규칙한 환경 소리 쪽. 환경음은 왼쪽 귀가 더 직접적일 수 있다는 서술이 있으나 확정이 아니다(5.5.1). 음악·억양 과제는 앱 밖에서 한다.',
+  params:[{k:'ear',l:'들려줄 귀',t:'seg',o:[[0,'양쪽'],[-1,'왼쪽'],[1,'오른쪽']],d:-1},
+    {k:'pitch',l:'소리 높이',t:'seg',o:[['mix','섞기'],[1200,'높게'],[300,'낮게']],d:'mix'},{k:'vol',l:'음량',t:'seg',o:[[.3,'작게'],[.48,'보통'],[.7,'크게'],[1,'최대']],d:.48},
+    {k:'vis',l:'화면 표시',t:'seg',o:[[0,'끄기'],[1,'켜기']],d:0},
+    {k:'min',l:'시간',t:'seg',o:[[1,'1분'],[1.5,'1분 30초'],[2,'2분']],d:1},pSize],
+  async run(){ await beatRun({irregular:true}); }};
+
+async function beatRun({prompts=null,irregular=false,cardSize=9}){
+  clear(); const end=P.min*60000; let t=0,b=0,card=null;
+  const pulse=dot(50,50,{cls:'ring',size:(P.size||5)*2.4}); if(P.vis===0) pulse.style.visibility='hidden';
+  while(t<end){
+    const iv=irregular?rand(350,1400):60000/P.bpm;
+    const f=irregular?(P.pitch==='mix'?[300,500,800,1200][randi(0,3)]:P.pitch):(P.pitch||800);
+    beep(f,.08,P.ear??0,P.vol??.32); pulse.classList.add('lit'); setTimeout(()=>pulse.classList.remove('lit'),110);
+    if(prompts&&P.every&&b%P.every===0){ if(card) card.remove(); card=txt(typeof prompts==='function'?prompts():prompts[randi(0,prompts.length-1)],{y:24,size:cardSize}); }
+    b++; const left=Math.ceil((end-t)/1000); hud(`${Math.floor(left/60)}:${String(left%60).padStart(2,'0')} 남음`);
+    await wait(iv); t+=iv;
+  }
+  RUN.count=b;
+}
+
+M.subtract={id:'subtract',name:'연속 뺄셈',tags:['FNS'],hemi:'L',
+  how:['화면의 시작 수에서 정한 수씩 소리 내어 거꾸로 뺀다(예: 731, 724, 717…).','교대를 고르면 두 수를 번갈아 뺀다(7·8 교대: −7, −8, −7…). 지금 어느 수를 뺄 차례인지 스스로 붙들고 있어야 한다.','박자 강제를 켜면 삐 소리마다 답 하나를 말해야 한다. 끄면 파트너가 탭할 때마다 다음 정답이 뜬다(확인용).','오른손 필기로 답을 쓰며 해도 된다.'],
+  note:'좌측 IPL 검사이자 활성화 후보(5.4.3). 큰 수·교대 빼기·박자 강제는 난도를 올리는 ANT 변형이다. 숫자 사이 긴 멈춤·손 튐은 좋지 않은 소견. 한 사례에서 이 과제 뒤 통증이 심해졌다: 역치 근처면 악화될 수 있다(5.7.5).',
+  params:[{k:'start',l:'시작 수',t:'seg',o:[[100,'100'],[200,'200'],[1000,'1000'],['r3','무작위 3자리'],['r4','무작위 4자리']],d:'r3'},
+    {k:'step',l:'빼는 수',t:'seg',o:[[3,'3'],[7,'7'],[13,'13'],[17,'17'],[19,'19'],[23,'23'],['a78','7·8 교대'],['a1317','13·17 교대']],d:7},
+    {k:'bpm',l:'박자 강제',t:'seg',o:[[0,'끄기'],[30,'2초마다'],[40,'1.5초마다'],[60,'1초마다']],d:0},
+    {k:'show',l:'정답 표시',t:'seg',o:[[1,'다음 정답 표시'],[0,'숨김']],d:1}],
+  async run(){
+    const st=P.start==='r3'?randi(300,999):P.start==='r4'?randi(1000,9999):P.start;
+    const steps=P.step==='a78'?[7,8]:P.step==='a1317'?[13,17]:[P.step];
+    clear(); txt(`${st} − ${steps.join('·')}${steps.length>1?' 교대':''}`,{size:14}); txt('탭: 시작',{y:85,size:3,cls:'small'}); await waitTap();
+    const iv=P.bpm?60000/P.bpm:0;
+    let v=st,n=0; clear(); const box=txt(P.show?String(st):'진행 중',{size:P.show?18:6}); const sub=txt('',{y:85,size:3,cls:'small'});
+    while(v-steps[n%steps.length]>=0){ const d=steps[n%steps.length]; hud(`${n+1}번째`);
+      if(iv){ sub.textContent=P.show?'삐 소리마다 답하기':'삐 소리마다 답하기 · 탭: 끝내기'; beep(880,.06,0,.4);
+        if(P.show) await wait(iv); else if(await waitTap(iv)) break; }
+      else { sub.textContent=P.show?'탭: 다음 정답':'탭: 끝내기'; await waitTap(); if(!P.show) break; }
+      v-=d; n++; if(P.show) box.textContent=v; RUN.count=n; }
+    if(P.show){ sub.textContent='끝'; await wait(1500); }
+  }};
+
+M.phone={id:'phone',name:'번호 외워 입력',tags:['FNS'],hemi:'L',
+  how:['전화번호가 잠깐 뜬다. 외운다.','번호가 사라지면 키패드에 직접 입력하고 확인을 누른다.','오른손으로 입력한다.'],
+  note:'저장된 이름 대신 번호를 외워 직접 입력하는 좌측 IPL 과제(5.4.3). 실수 자체가 학습에 쓰인다는 임상 설명이 있다.',
+  params:[{k:'len',l:'자릿수',t:'seg',o:[[4,'4자리'],[8,'8자리'],[11,'010+8자리']],d:8},
+    {k:'show',l:'보여주는 시간',t:'seg',o:[[2,'2초'],[4,'4초'],[6,'6초']],d:4},pReps(5,20)],
+  async run(){
+    RUN.lockBg=true;
+    for(let i=1;i<=P.reps;i++){ hud(`${i} / ${P.reps}`);
+      let num=P.len===11?'010':''; while(num.length<P.len) num+=randi(0,9);
+      const fmt=s=>s.length===11?`${s.slice(0,3)}-${s.slice(3,7)}-${s.slice(7)}`:s.length===8?`${s.slice(0,4)}-${s.slice(4)}`:s;
+      clear(); txt(fmt(num),{size:10}); await wait(P.show*1000);
+      clear(); const shown=txt('',{y:18,size:8}); let typed='',done=false;
+      const kp=document.createElement('div'); kp.className='keypad';
+      ['1','2','3','4','5','6','7','8','9','←','0','확인'].forEach(k=>{const b=document.createElement('button');b.textContent=k;
+        b.onclick=e=>{e.stopPropagation(); if(k==='←') typed=typed.slice(0,-1); else if(k==='확인') done=true; else if(typed.length<P.len) typed+=k; shown.textContent=fmt(typed)||' '; };kp.appendChild(b)});
+      field().appendChild(kp);
+      await waitTap(Infinity,()=>done);
+      clear(); const ok=typed===num; txt(ok?'✓ 맞음':'✗ 다름',{y:38,size:10,cls:ok?'go':'stop'}); txt(`정답 ${fmt(num)}`,{y:56,size:6});
+      if(!ok) txt(`입력 ${fmt(typed)||'-'}`,{y:68,size:4.5,cls:'small'});
+      await wait(2200); RUN.count=i; }
+    RUN.lockBg=false;
+  }};
+
+M.photo={id:'photo',name:'거꾸로 사진 알아보기',tags:['FNS'],hemi:'R',needsPhotos:true,
+  how:['아는 사람의 사진이 기울어져 나온다. 누구인지 말한다.','탭하면 바로 세워 확인하고, 다시 탭하면 다음 사진.','어려우면 45°에서 시작해 180°까지 올린다.'],
+  note:'우측 IPL(모양·이미지) 과제. 정신 회전을 요구한다(5.4.3). 사진은 이 기기 안에서만 열리고 어디에도 올라가지 않는다. 수강생 모두 아는 인물이 좋다.',
+  params:[{k:'angle',l:'각도',t:'seg',o:[[45,'45°'],[90,'90°'],[135,'135°'],[180,'180°'],['prog','45→180 단계']],d:'prog'},
+    {k:'reveal',l:'바로 세워 확인',t:'seg',o:[[1,'켜기'],[0,'끄기']],d:1}],
+  async run(){
+    if(!state.photos.length){ clear(); txt('설정 화면에서 사진을 먼저 불러오세요',{size:4.5}); await waitTap(); return; }
+    const list=shuffle(state.photos); const steps=[45,90,135,180];
+    for(let i=0;i<list.length;i++){ hud(`${i+1} / ${list.length}`);
+      const ang=P.angle==='prog'?steps[Math.min(3,Math.floor(i*4/list.length))]:P.angle;
+      clear(); const img=document.createElement('img'); img.className='pimg'; img.src=list[i];
+      img.style.transform=`translate(-50%,-50%) rotate(${ang}deg)`; field().appendChild(img);
+      txt('누구인가요?',{y:8,size:3.4,cls:'small'}); await waitTap();
+      if(P.reveal){ img.style.transform='translate(-50%,-50%) rotate(0deg)'; await waitTap(); }
+      RUN.count=i+1; }
+  }};
+
+const SENTS=['오늘 아침에는 창문을 열고 천천히 숨을 쉬었다.','어깨를 돌릴 때 소리가 나는지 살펴본다.','작은 공을 왼손으로 받아 오른손에 건넨다.','계단을 오를 때 발뒤꿈치까지 닿게 딛는다.','물 한 잔을 마시고 다음 동작을 준비한다.','바람이 불어 나뭇잎이 길 위로 흩어졌다.','손바닥을 펴고 손가락 끝까지 힘을 뺀다.','점심을 먹은 뒤 십 분 동안 걸었다.'];
+M.flipText={id:'flipText',name:'거꾸로 문장 따라 쓰기',tags:['FNS'],hemi:'R',
+  how:['기울어진(거꾸로) 문장이 뜬다. 종이에 똑바로 따라 쓴다.','손은 왼손. 균형판 위에서 하면 난이도가 오른다(우측에만 서술된 결합).','탭하면 다음 문장.'],
+  note:'거꾸로 놓인 종이에 글쓰기의 화면판(5.4.3). 불안정면은 우측 두정 쓰기 과제에만 붙은 변수다.',
+  params:[{k:'angle',l:'각도',t:'seg',o:[[45,'45°'],[90,'90°'],[180,'180°']],d:180},{k:'fs',l:'글자 크기',t:'seg',o:[[4,'작게'],[6,'보통'],[8,'크게']],d:6}],
+  async run(){
+    const list=shuffle(SENTS);
+    for(let i=0;i<list.length;i++){ hud(`${i+1} / ${list.length}`);
+      clear(); const e=txt(list[i],{size:P.fs}); e.style.transform=`translate(-50%,-50%) rotate(${P.angle}deg)`; e.style.width='80vmin';
+      await waitTap(); RUN.count=i+1; }
+  }};
+
+const COLORS_HI=[['빨간','#ff4d4d'],['파란','#3d8bff'],['노란','#ffd23f'],['초록','#2fbf6b']];
+const COLORS_LO=[['빨간','#d9534f'],['주황','#e07b39'],['분홍','#d9718e'],['갈색','#a8744f']];
+const SHAPES=[['원','circle'],['네모','square'],['세모','tri'],['마름모','dia'],['가로 막대','hbar'],['세로 막대','vbar']];
+function shapeEl(x,y,sz,shape,color){
+  const e=document.createElement('div'); e.className='shape'; e.style.left=x+'%'; e.style.top=y+'%';
+  let w=sz,h=sz; if(shape==='hbar'){w=sz*1.5;h=sz*.35} if(shape==='vbar'){w=sz*.35;h=sz*1.5}
+  e.style.width=w+'vmin'; e.style.height=h+'vmin'; e.style.background=color;
+  if(shape==='circle') e.style.borderRadius='50%';
+  if(shape==='tri') e.style.clipPath='polygon(50% 0,100% 100%,0 100%)';
+  if(shape==='dia') e.style.clipPath='polygon(50% 0,100% 50%,50% 100%,0 50%)';
+  field().appendChild(e); return e;
+}
+M.search={id:'search',name:'표적 찾기 (선·색·모양·깊이)',tags:['FNS'],
+  how:['위에 적힌 표적(예: 빨간 세모)을 찾아 손가락으로 짚는다(터치 화면은 직접 탭).','TV에서는 손으로 가리키고 파트너가 Space/탭으로 넘긴다.','크기가 다른 것은 깊이(거리) 단서다.'],
+  note:'깊이·선·색·모양이 후두 처리 항목이므로 직접 활성(5.5.3). 조절 변수: 표적 수, 색 대비, 크기 차이, 한 눈·두 눈. 거리 걷기·줄자 과제는 앱 밖에서 한다.',
+  params:[{k:'n',l:'항목 수',t:'seg',o:[[8,'8'],[14,'14'],[22,'22']],d:14},
+    {k:'contrast',l:'색 대비',t:'seg',o:[['hi','높게'],['lo','낮게']],d:'hi'},
+    {k:'depth',l:'크기(깊이) 섞기',t:'seg',o:[[1,'켜기'],[0,'끄기']],d:1},
+    {k:'eye',l:'안내',t:'seg',o:[['both','두 눈'],['one','한 눈 가리기']],d:'both'},pReps(10,40)],
+  async run(){
+    const C=P.contrast==='hi'?COLORS_HI:COLORS_LO; RUN.lockBg=true;
+    for(let i=1;i<=P.reps;i++){ hud(`${i} / ${P.reps}`);
+      clear(); const tc=randi(0,C.length-1), ts=randi(0,SHAPES.length-1);
+      txt(`${C[tc][0]} ${SHAPES[ts][0]}`+(P.eye==='one'?' <span style="opacity:.6;font-size:.6em">(한 눈)</span>':''),{y:8,size:4.6});
+      const pos=slots(P.n,[6,94,20,90],7); let found=false; const ti=randi(0,pos.length-1);
+      pos.forEach((p,k)=>{ let c=tc,s=ts;
+        if(k!==ti){ do{c=randi(0,C.length-1);s=randi(0,SHAPES.length-1)}while(c===tc&&s===ts); }
+        const sz=P.depth?rand(3.2,8.5):5.5; const e=shapeEl(p.x,p.y,sz,SHAPES[s][1],C[c][1]);
+        e.onclick=ev=>{ev.stopPropagation(); if(k===ti){found=true;e.classList.add('hit');beep(990,.1)} else {e.classList.remove('wrong');void e.offsetWidth;e.classList.add('wrong');beep(220,.12)}};
+      });
+      await waitTap(Infinity,()=>found); await wait(450); RUN.count=i; }
+    RUN.lockBg=false;
+  }};
+
+M.pursuit={id:'pursuit',name:'움직이는 표적 따라가기',tags:['FNS','ANT'],
+  how:['노란 원을 머리는 고정한 채 눈으로만 부드럽게 따라간다.','따라가기 어려워 눈이 튀면(따라잡기 saccade) 관찰자가 표시한다.','배경 질감을 켜고 끈 조건을 비교할 수 있다.'],
+  note:'움직이는 표적 속도는 후두엽 과제의 조절 변수(5.5.3). 질감 배경 유무 비교는 측두(MST) 감별 도구로 서술된다(5.5.1). 경로 선택은 ANT 구성.',
+  params:[{k:'path',l:'경로',t:'seg',o:[['h','좌우'],['v','상하'],['c','원'],['8','8자'],['r','불규칙']],d:'h'},
+    {k:'spd',l:'속도',t:'seg',o:[[.12,'느림'],[.22,'보통'],[.38,'빠름']],d:.22},
+    {k:'bg',l:'배경',t:'seg',o:[[0,'없음'],[1,'질감']],d:0},
+    {k:'sec',l:'시간',t:'seg',o:[[20,'20초'],[40,'40초'],[60,'60초']],d:40},pSize],
+  async run(){
+    clear(); if(P.bg) field().className='texture';
+    const e=dot(50,50); const W=innerWidth,H=innerHeight,vm=Math.min(W,H)/100;
+    const rx=Math.min(42,38*vm/W*100*1.15), ry=Math.min(34,38*vm/H*100*1.15);
+    let t=0,last=performance.now(); const w=2*Math.PI*P.spd;
+    while(t<P.sec){
+      if(RUN.abort) throw new Abort();
+      await new Promise(r=>requestAnimationFrame(r)); const now=performance.now();
+      if(!RUN.paused) t+=(now-last)/1000; last=now; const a=w*t; let x=50,y=50;
+      if(P.path==='h') x=50+42*Math.sin(a);
+      else if(P.path==='v') y=52+34*Math.sin(a);
+      else if(P.path==='c'){x=50+rx*Math.cos(a);y=52+ry*Math.sin(a)}
+      else if(P.path==='8'){x=50+40*Math.sin(a);y=52+28*Math.sin(2*a)}
+      else {x=50+28*Math.sin(a)+12*Math.sin(2.3*a+1);y=52+20*Math.sin(.8*a+.5)+12*Math.sin(1.9*a)}
+      e.style.left=x+'%'; e.style.top=y+'%'; hud(`${Math.max(0,Math.ceil(P.sec-t))}초`);
+    }
+    RUN.count=1;
+  }};
+
+M.fitts={id:'fitts',name:'표적 짚기 (폭·거리)',tags:['확립','ANT'],
+  how:['노란 표적을 손끝으로 정확하게 짚는다. 짚으면 반대편 표적이 켜진다(터치 화면).','정확도 우선. 빠르게 하라는 지시는 별도 조건이다.','난도를 바꿀 때는 폭과 거리 중 하나만 바꾼다.'],
+  note:'거리·폭과 이동 시간의 관계는 운동제어에서 확립(5.5.3 시행 변형). 등쪽 경로가 손 운동을 안내하는 점과 맞는 결합. 정밀 시간·오차는 기록지에서 따로 잰다.',
+  params:[{k:'w',l:'표적 폭',t:'seg',o:[[2,'아주 좁게'],[3,'좁게'],[5,'보통'],[8,'넓게']],d:5,hint:'아주 좁게·좁게는 TV·태블릿용. 폰에서는 손끝보다 작다'},
+    {k:'d',l:'거리',t:'seg',o:[[30,'가깝게'],[50,'중간'],[76,'멀게']],d:50},pReps(20,60)],
+  async run(){
+    clear(); const A=dot(50-P.d/2,55,{cls:'ring',size:P.w}),B=dot(50+P.d/2,55,{cls:'ring',size:P.w});
+    let cur=0,hits=0; const T=[A,B]; T[0].classList.add('lit');
+    RUN.onClick=ev=>{
+      const r=T[cur].getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+      const hit=Math.hypot(ev.clientX-cx,ev.clientY-cy)<=r.width/2;
+      if(hit){ beep(990,.06); T[cur].classList.remove('lit'); cur^=1; T[cur].classList.add('lit'); hits++; }
+      else { beep(220,.08); const m=dot(ev.clientX/innerWidth*100,ev.clientY/innerHeight*100,{cls:'miss',size:1.4}); setTimeout(()=>m.remove(),600); }
+    };
+    while(hits<P.reps){ hud(`${hits} / ${P.reps}`); await wait(50); }
+    RUN.onClick=null; RUN.count=hits;
+  }};
+
+/* ---------- 구역 ---------- */
+const REGIONS=[
+ {lobe:'전두엽',id:'fef',nm:'FEF',fl:'전두 안구영역',art:'MCA',sided:true,ref:'5.3.1',
+  about:'반대쪽으로 향하는 빠른 눈운동(saccade)을 시작한다. 평가 지표는 이동 속도와 출발 지연(잠복기)이며, 도착 정확도는 소뇌 몫이다.',modes:['pro']},
+ {lobe:'전두엽',id:'sef',nm:'SEF',fl:'보조 안구영역',art:'ACA',sided:true,ref:'5.3.2',
+  about:'"첫째 저기, 다음 저기"처럼 학습한 순서대로 saccade를 계획한다. 저활성 소견은 순서 붕괴. 순서 결손은 왼쪽 SEF에서 더 두드러진다고 서술된다.',modes:['seq']},
+ {lobe:'전두엽',id:'dlpfc',nm:'DLPFC',fl:'배외측 전전두피질',art:'MCA',sided:true,ref:'5.3.3',
+  about:'몇 초 동안 정보를 붙들고 그 위에서 일하는 작업기억·계획의 중심. 눈운동에서는 예측·기억유도·안티 saccade를 맡는다. 상지 정밀 운동과 짝짓는다.',modes:['predict','mem2d','anti']},
+ {lobe:'전두엽',id:'ofc',nm:'OFC / VMPFC',fl:'안와·복내측 전전두',art:'ACA',sided:false,ref:'5.3.4',
+  about:'충동 억제. 하지 동작에 "가/멈춰" 신호를 묶는다. 실습 순환에서는 강사 시연 항목이다.',modes:['gonogo']},
+ {lobe:'전두엽',id:'pm',nm:'전운동',fl:'외부 신호에 따른 동작',art:'MCA',sided:true,ref:'5.3.5',
+  about:'두정엽의 감각·시각 정보를 받아 동작을 고른다. 외부 단서에 따라 반응하는 조건부 과제에 더 쓰인다. 신호 기반 시작–멈춤을 쓴다.',modes:['startstop']},
+ {lobe:'전두엽',id:'sma',nm:'SMA',fl:'보조운동영역 · 스스로 시작',art:'ACA',sided:true,ref:'5.3.5',
+  about:'안쪽면의 전운동 영역. 외부 지시 없이 기억한 순서·리듬으로 하는 움직임에 더 쓰인다고 서술된다. 외부 신호를 끊고 스스로 이어 가는 과제를 쓴다.',modes:['contTap']},
+ {lobe:'전두엽',id:'broca',nm:'브로카',fl:'말 산출',art:'MCA',sided:'L',ref:'5.3.6',
+  about:'말 산출 자체가 직접 활성. 박자에 맞춰 말하기, 발음이 어려운 잰말놀이 구절 말하기. 좌반구 과제라 오른손을 쓴다.',modes:['speak']},
+ {lobe:'두정엽',id:'ipl',nm:'IPL',fl:'하두정소엽',art:'MCA',sided:true,ref:'5.4.3',
+  about:'좌측은 숫자·글자(계산), 우측은 모양·이미지(정신 회전). 반구 선택에 따라 과제가 바뀐다.',modes:['subtract','phone','photo','flipText']},
+ {lobe:'측두엽',id:'temporal',nm:'측두엽',fl:'청각 · 리듬',art:'MCA',sided:true,ref:'5.5.1',
+  about:'좌측은 규칙 박자·이름-얼굴-이야기, 우측은 음악·억양·불규칙 소리. 반구 선택에 따라 과제가 바뀐다. 얼굴 카드 과제는 앱 밖에서 한다.',modes:['beatReg','beatIrr']},
+ {lobe:'후두엽',id:'occ',nm:'후두엽',fl:'깊이 · 선 · 색 · 모양',art:'PCA',sided:false,ref:'5.5.3',
+  about:'깊이·거리·선·각도·색·모양 처리. 무작위 표적 찾기, 움직이는 표적, 표적 짚기.',modes:['search','pursuit','fitts']},
+];
+
+/* ---------- UI ---------- */
+const TAGTXT={FNS:'FNS',ANT:'ANT',가설:'가설',확립:'확립',서적:'서적',확인필요:'확인 필요'};
+const resolve=v=>typeof v==='function'?v():v;
+
+function renderHemi(){
+  document.querySelectorAll('#hemiSeg button').forEach(b=>b.classList.toggle('on',b.dataset.h===state.hemi));
+  $('#hemiRule').innerHTML=`표적·손·몸 부위 <b>${sideWord()}</b>`; document.body.dataset.hemi=state.hemi;
+}
+document.querySelectorAll('#hemiSeg button').forEach(b=>b.onclick=()=>{state.hemi=b.dataset.h;store.set('hemi',state.hemi);renderHemi(); renderHome(); if(!$('#setup').hidden) renderSetup();});
+
+function renderHome(){
+  const lobes=[...new Set(REGIONS.map(r=>r.lobe))];
+  $('#home').innerHTML=lobes.map(l=>`<section class="lobe"><h2>${l}</h2><div class="grid">${
+    REGIONS.filter(r=>r.lobe===l).map(r=>{const n=visibleModes(r).length;return `<button class="card" data-r="${r.id}"><span class="cmain"><div class="nm">${r.nm}</div><div class="fl">${r.fl}</div></span>
+      <span class="meta"><span class="pill">${r.art}</span><span class="pill">${n}개 모드</span></span><span class="chev">›</span></button>`}).join('')
+  }</div></section>`).join('')+`<p class="foot">근거는 강사본 <code>instructor_part5_lobe_activation.md</code>의 절 번호. 벽 표적 과제를 화면으로 옮긴 것 자체는 ANT 변형이다. 레드플래그(갑작스러운 편측 약화·감각·시야·말 변화, 새로 생긴 두통·어지럼, 외상 직후)는 평가·활성화하지 않고 의뢰한다.</p>`;
+  document.querySelectorAll('.card').forEach(c=>c.onclick=()=>{state.region=REGIONS.find(r=>r.id===c.dataset.r);state.mode=null;showSetup()});
+}
+
+function showSetup(){ $('#home').hidden=true; $('#setup').hidden=false; renderSetup(); scrollTo(0,0); }
+function showHome(){ $('#setup').hidden=true; $('#home').hidden=false; }
+
+function visibleModes(r){ return r.modes.map(id=>M[id]).filter(m=>!m.hemi||m.hemi===state.hemi); }
+
+function renderSetup(){
+  const r=state.region, ms=visibleModes(r);
+  if(!state.mode||!ms.includes(state.mode)) state.mode=ms[0];
+  const m=state.mode, saved=store.get('p_'+m.id,{});
+  const cur={}; m.params.forEach(p=>cur[p.k]=saved[p.k]!==undefined&&(p.t==='num'||p.o.some(o=>o[0]===saved[p.k]))?saved[p.k]:p.d);
+  state.cur=cur;
+  let sidedNote='';
+  if(r.sided==='L'&&state.hemi==='R') sidedNote=`<p class="sided">브로카는 좌반구 과제다. 반구를 <b>좌</b>로 두고 오른손을 쓴다.</p>`;
+  else if(r.sided===true) sidedNote=`<p class="sided">반대쪽 규칙 · ${state.hemi==='L'?'좌':'우'}반구 자극 → 표적·손 <b>${sideWord()}</b></p>`;
+  const hidden=r.modes.length>ms.length?`<p class="note">반대 반구 과제는 위에서 반구를 바꾸면 보인다.</p>`:'';
+  const canFull=!!(document.fullscreenEnabled||document.webkitFullscreenEnabled);
+  $('#setup').innerHTML=`
+   <button class="back" id="bBack">← 구역 선택</button>
+   <div class="panel">
+     <div class="rtitle"><h2>${r.nm}</h2><span class="fl">${r.fl} · ${r.art}</span></div>
+     <p class="about">${r.about}</p>${sidedNote}
+     ${ms.length>1?`<div class="tabs">${ms.map(x=>`<button data-m="${x.id}" class="${x===m?'on':''}">${x.name}</button>`).join('')}</div>`:''}${hidden}
+   </div>
+   <div class="panel">
+     <div class="mhead"><b>${m.name}</b><span class="tags">${m.tags.map(t=>TAGTXT[t]).join(' · ')}</span></div>
+     <ol class="how">${m.how.map(h=>`<li>${resolve(h)}</li>`).join('')}</ol>
+     <details class="ev"><summary>근거 · 해석</summary><p class="note">${m.note} <span style="color:var(--faint)">강사본 ${r.ref}</span></p></details>
+     ${m.needsPhotos?`<div class="opts"><label>사진 불러오기 <input type="file" id="fPhotos" accept="image/*" multiple></label><span id="photoN">${state.photos.length}장</span></div>`:''}
+     <div class="params">${m.params.filter(p=>!p.when||cur[p.when[0]]===p.when[1]).map(p=>`<div class="prow"><span class="pl">${p.l}</span><span>${
+        p.t==='seg'?`<span class="seg" data-k="${p.k}">${p.o.map(o=>`<button data-v='${JSON.stringify(o[0])}' class="${o[0]===cur[p.k]?'on':''}">${o[1]}</button>`).join('')}</span>`
+        :`<span class="stepper" data-k="${p.k}"><button data-d="-1">−</button><span>${p.fmt?p.fmt(cur[p.k]):cur[p.k]}</span><button data-d="1">+</button></span>`
+        }${p.hint?`<div class="note" style="margin-top:4px">${p.hint}</div>`:''}</span></div>`).join('')}</div>
+     <div class="opts">
+       ${canFull?`<label><input type="checkbox" id="oFull" ${store.get('full',true)?'checked':''}> 시작할 때 전체화면</label>`:''}
+       <label><input type="checkbox" id="oLight" ${store.get('light',false)?'checked':''}> 밝은 배경(밝은 방·프로젝터)</label>
+     </div>
+     <div class="warn"><b>멈춤 기준.</b> 정해진 처방 횟수는 없다. 눈이 떨리거나 눈물이 나기 <b>전에</b>, 속도가 떨어지거나 손이 서툴러지기 시작하면 멈춘다. 어지럼·두통·메스꺼움·눈 통증이 새로 생기면 중단한다. 건강한 수강생이 느끼는 쉬움·어려움은 효과의 근거가 아니며, 채택은 재검사로만 한다(5.7).</div>
+     <div class="startbar"><button class="start" id="bStart">시작<small>${r.sided===true?`${state.hemi==='L'?'좌':'우'}반구 · 표적 ${sideWord()}`:''}</small></button></div>
+   </div>`;
+  $('#bBack').onclick=showHome;
+  document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{state.mode=M[b.dataset.m];renderSetup()});
+  document.querySelectorAll('.params .seg').forEach(s=>s.querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    cur[s.dataset.k]=JSON.parse(b.dataset.v); s.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); store.set('p_'+m.id,cur);
+    if(m.params.some(x=>x.when&&x.when[0]===s.dataset.k)) renderSetup();}));
+  document.querySelectorAll('.params .stepper').forEach(s=>s.querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    const p=m.params.find(x=>x.k===s.dataset.k); cur[p.k]=Math.min(p.max,Math.max(p.min,cur[p.k]+(+b.dataset.d)*p.step));
+    s.querySelector('span').textContent=p.fmt?p.fmt(cur[p.k]):cur[p.k]; store.set('p_'+m.id,cur);}));
+  const fp=$('#fPhotos'); if(fp) fp.onchange=()=>{ state.photos.forEach(u=>URL.revokeObjectURL(u)); state.photos=[...fp.files].map(f=>URL.createObjectURL(f)); $('#photoN').textContent=state.photos.length+'장'; };
+  if($('#oFull')) $('#oFull').onchange=e=>store.set('full',e.target.checked);
+  $('#oLight').onchange=e=>store.set('light',e.target.checked);
+  $('#bStart').onclick=()=>start();
+}
+
+/* ---------- stage control ---------- */
+function setPause(v){ RUN.paused=v; $('#veil').classList.toggle('on',v); }
+function goFull(){ const d=document.documentElement; try{ if(!document.fullscreenElement&&d.requestFullscreen) d.requestFullscreen().catch(()=>{}); else if(d.webkitRequestFullscreen) d.webkitRequestFullscreen(); }catch(e){} }
+function exitStage(){ RUN.abort=true; }
+$('#bPause').onclick=e=>{e.stopPropagation();setPause(!RUN.paused)};
+$('#bExit').onclick=e=>{e.stopPropagation();exitStage()};
+$('#bFull').onclick=e=>{e.stopPropagation(); if(document.fullscreenElement) document.exitFullscreen(); else goFull();};
+$('#stage').addEventListener('pointerdown',e=>{
+  if(e.target.closest('#hud')||e.target.closest('button')) return;
+  if(RUN.paused){ setPause(false); return; }
+  if(RUN.onClick){ RUN.onClick(e); return; }
+  if(e.target.closest('.shape')) return;
+  if(!RUN.lockBg) RUN.tap=true;
+});
+document.addEventListener('keydown',e=>{
+  if($('#stage').hidden) return;
+  if(e.key==='Escape'){ e.preventDefault(); exitStage(); }
+  else if(e.key==='p'||e.key==='P'||e.key==='ㅔ'){ setPause(!RUN.paused); }
+  else if(e.key===' '||e.key==='Enter'||e.key==='ArrowRight'){ e.preventDefault(); if(RUN.paused) setPause(false); else RUN.tap=true; }
+});
+
+async function start(){
+  audio();
+  const m=state.mode; P=Object.assign({},state.cur);
+  $('#stage').classList.toggle('light',store.get('light',false));
+  $('#stage').hidden=false; document.body.style.overflow='hidden';
+  const canFull=!!(document.fullscreenEnabled||document.webkitFullscreenEnabled);
+  $('#bFull').hidden=!canFull; if(canFull&&store.get('full',true)) goFull();
+  let again=true;
+  while(again){
+    again=false; Object.assign(RUN,{abort:false,paused:false,tap:false,onClick:null,lockBg:false,count:0});
+    try{
+      clear(); hud(`${state.region.nm} · ${m.name}`);
+      txt(`${state.region.nm} · ${m.name}`,{y:30,size:5.4});
+      if(state.region.sided===true) txt(`${state.hemi==='L'?'좌':'우'}반구 → 표적·손 <b>${sideWord()}</b>`,{y:41,size:3.6,cls:'small'});
+      if(innerHeight>innerWidth) txt('가로로 돌리면 눈 이동 폭이 커집니다',{y:50,size:3.2,cls:'small'});
+      if(IOS) txt('소리가 안 나면 무음 스위치를 끈다',{y:55,size:3,cls:'small'});
+      txt('탭 또는 Space로 시작',{y:64,size:4.2});
+      if(!matchMedia('(pointer:coarse)').matches) txt('P 멈춤 · Esc 끝내기',{y:72,size:2.8,cls:'small'});
+      await waitTap();
+      await m.run();
+      clear(); RUN.onClick=null; RUN.lockBg=true; hud('');
+      txt('완료',{y:40,size:10}); txt('필요하면 재검사로 넘어간다',{y:52,size:3.4,cls:'small'});
+      let choice=null; const eb=document.createElement('div'); eb.className='endbtns';
+      [['다시','again'],['설정으로','back']].forEach(([l,v])=>{const b=document.createElement('button');b.textContent=l;b.onclick=ev=>{ev.stopPropagation();choice=v};eb.appendChild(b)});
+      field().appendChild(eb);
+      await waitTap(Infinity,()=>choice); again=(choice==='again'||choice===null);
+    }catch(err){ if(!(err instanceof Abort)) { console.error(err); } }
+  }
+  RUN.onClick=null; setPause(false); clear();
+  $('#stage').hidden=true; document.body.style.overflow='';
+  if(document.fullscreenElement) document.exitFullscreen().catch(()=>{});
+}
+
+renderHemi(); renderHome();
+if('serviceWorker' in navigator && location.protocol==='https:') navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
