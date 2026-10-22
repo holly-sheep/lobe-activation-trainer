@@ -136,6 +136,12 @@ input[type=file]{font-size:13px;max-width:100%}
 .pimg{position:absolute;left:50%;top:52%;max-width:72vmin;max-height:72vmin;transition:transform .6s}
 .keypad{position:absolute;left:50%;top:60%;transform:translate(-50%,-50%);display:grid;grid-template-columns:repeat(3, 15vmin);gap:1.6vmin}
 .keypad button{height:11vmin;font-size:5vmin;border-radius:2vmin;border:.3vmin solid var(--s-ring);background:transparent;color:var(--s-ink);cursor:pointer}
+.sum{font-weight:500}
+.sum .small{opacity:.6;font-weight:400}
+.sum table{margin:0 auto;border-collapse:collapse}
+.sum td{padding:.5vmin 2.4vmin;text-align:left}
+.sum td+td{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+.endbtns.low{top:76%}
 .endbtns{position:absolute;left:50%;top:62%;transform:translateX(-50%);display:flex;gap:2vmin}
 .endbtns button{font-size:3.6vmin;padding:1.6vmin 3.6vmin;border-radius:1.6vmin;border:.3vmin solid var(--s-ring);background:transparent;color:var(--s-ink);cursor:pointer}
 </style>
@@ -189,7 +195,7 @@ function beep(freq=880,dur=.12,pan=0,vol=.28){
 }
 
 /* ---------- runner ---------- */
-const RUN={abort:false,paused:false,tap:false,onClick:null,lockBg:false,count:0};
+const RUN={abort:false,paused:false,tap:false,onClick:null,lockBg:false,count:0,waited:0,summary:null};
 class Abort extends Error{}
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 async function wait(ms){
@@ -201,9 +207,9 @@ async function waitTap(timeout=Infinity,cond=null){
   RUN.tap=false; let t=0,last=performance.now();
   while(!RUN.tap && !(cond&&cond())){
     if(RUN.abort) throw new Abort(); await sleep(15);
-    const now=performance.now(); if(!RUN.paused) t+=now-last; last=now; if(t>=timeout) return false;
+    const now=performance.now(); if(!RUN.paused) t+=now-last; last=now; if(t>=timeout){ RUN.waited=t; return false; }
   }
-  RUN.tap=false; return true;
+  RUN.tap=false; RUN.waited=t; return true;
 }
 const field=()=>$('#field');
 function clear(){ field().innerHTML=''; field().className=''; }
@@ -616,26 +622,39 @@ function shapeEl(x,y,sz,shape,color){
   field().appendChild(e); return e;
 }
 M.search={id:'search',name:'표적 찾기 (선·색·모양·깊이)',tags:['FNS'],
-  how:['위에 적힌 표적(예: 빨간 세모)을 찾아 손가락으로 짚는다(터치 화면은 직접 탭).','TV에서는 손으로 가리키고 파트너가 Space/탭으로 넘긴다.','크기가 다른 것은 깊이(거리) 단서다.'],
+  how:['위에 적힌 표적(예: 빨간 세모)을 찾아 손가락으로 짚는다(터치 화면은 직접 탭).','TV에서는 손으로 가리키고 파트너가 Space/탭으로 넘긴다.','크기가 다른 것은 깊이(거리) 단서다.','찾는 데 걸린 시간은 자동으로 잰다(멈춤 시간 제외). 끝나면 좌·우 반 화면별 평균이 나온다.'],
   note:'깊이·선·색·모양이 후두 처리 항목이므로 직접 활성(5.5.3). 조절 변수: 표적 수, 색 대비, 크기 차이, 한 눈·두 눈. 거리 걷기·줄자 과제는 앱 밖에서 한다.',
   params:[{k:'n',l:'항목 수',t:'seg',o:[[8,'8'],[14,'14'],[22,'22']],d:14},
     {k:'contrast',l:'색 대비',t:'seg',o:[['hi','높게'],['lo','낮게']],d:'hi'},
     {k:'depth',l:'크기(깊이) 섞기',t:'seg',o:[[1,'켜기'],[0,'끄기']],d:1},
     {k:'eye',l:'안내',t:'seg',o:[['both','두 눈'],['one','한 눈 가리기']],d:'both'},pReps(10,40)],
   async run(){
-    const C=P.contrast==='hi'?COLORS_HI:COLORS_LO; RUN.lockBg=true;
+    const C=P.contrast==='hi'?COLORS_HI:COLORS_LO, log=[]; RUN.lockBg=true;
     for(let i=1;i<=P.reps;i++){ hud(`${i} / ${P.reps}`);
       clear(); const tc=randi(0,C.length-1), ts=randi(0,SHAPES.length-1);
-      txt(`${C[tc][0]} ${SHAPES[ts][0]}`+(P.eye==='one'?' <span style="opacity:.6;font-size:.6em">(한 눈)</span>':''),{y:8,size:4.6});
-      const pos=slots(P.n,[6,94,20,90],7); let found=false; const ti=randi(0,pos.length-1);
+      const head=txt(`${C[tc][0]} ${SHAPES[ts][0]}`+(P.eye==='one'?' <span style="opacity:.6;font-size:.6em">(한 눈)</span>':''),{y:8,size:4.6});
+      const pos=slots(P.n,[6,94,20,90],7); let found=false,wrong=0; const ti=randi(0,pos.length-1);
       pos.forEach((p,k)=>{ let c=tc,s=ts;
         if(k!==ti){ do{c=randi(0,C.length-1);s=randi(0,SHAPES.length-1)}while(c===tc&&s===ts); }
         const sz=P.depth?rand(3.2,8.5):5.5; const e=shapeEl(p.x,p.y,sz,SHAPES[s][1],C[c][1]);
-        e.onclick=ev=>{ev.stopPropagation(); if(k===ti){found=true;e.classList.add('hit');beep(990,.1)} else {e.classList.remove('wrong');void e.offsetWidth;e.classList.add('wrong');beep(220,.12)}};
+        e.onclick=ev=>{ev.stopPropagation(); if(k===ti){found=true;e.classList.add('hit');beep(990,.1)} else {wrong++;e.classList.remove('wrong');void e.offsetWidth;e.classList.add('wrong');beep(220,.12)}};
       });
-      await waitTap(Infinity,()=>found); await wait(450); RUN.count=i; }
-    RUN.lockBg=false;
+      await waitTap(Infinity,()=>found); const sec=RUN.waited/1000;
+      log.push({sec,side:pos[ti].x<50?'L':'R',wrong});
+      head.innerHTML=`${sec.toFixed(2)}초`+(wrong?` <span style="opacity:.6;font-size:.6em">오답 ${wrong}</span>`:'');
+      await wait(1100); RUN.count=i; }
+    RUN.lockBg=false; RUN.summary=searchSummary(log);
   }};
+function searchSummary(log){
+  const f=a=>a.length?(a.reduce((x,y)=>x+y,0)/a.length).toFixed(2)+'초':'–';
+  const all=log.map(r=>r.sec), L=log.filter(r=>r.side==='L').map(r=>r.sec), R=log.filter(r=>r.side==='R').map(r=>r.sec);
+  const rows=[['전체 평균',`${f(all)} <span class="small">(${all.length}판)</span>`],
+    ['왼쪽 반 화면 평균',`${f(L)} <span class="small">(${L.length}판)</span>`],
+    ['오른쪽 반 화면 평균',`${f(R)} <span class="small">(${R.length}판)</span>`],
+    ['가장 빠름',Math.min(...all).toFixed(2)+'초'],['가장 느림',Math.max(...all).toFixed(2)+'초'],
+    ['오답 탭',log.reduce((x,r)=>x+r.wrong,0)+'회']];
+  return '<table>'+rows.map(([a,b])=>`<tr><td>${a}</td><td>${b}</td></tr>`).join('')+'</table>';
+}
 
 M.pursuit={id:'pursuit',name:'움직이는 표적 따라가기',tags:['FNS','ANT'],
   how:['노란 원을 머리는 고정한 채 눈으로만 부드럽게 따라간다.','따라가기 어려워 눈이 튀면(따라잡기 saccade) 관찰자가 표시한다.','배경 질감을 켜고 끈 조건을 비교할 수 있다.'],
@@ -807,7 +826,7 @@ async function start(){
   $('#bFull').hidden=!canFull; if(canFull&&store.get('full',true)) goFull();
   let again=true;
   while(again){
-    again=false; Object.assign(RUN,{abort:false,paused:false,tap:false,onClick:null,lockBg:false,count:0});
+    again=false; Object.assign(RUN,{abort:false,paused:false,tap:false,onClick:null,lockBg:false,count:0,summary:null});
     try{
       clear(); hud(`${state.region.nm} · ${m.name}`);
       txt(`${state.region.nm} · ${m.name}`,{y:30,size:5.4});
@@ -819,8 +838,9 @@ async function start(){
       await waitTap();
       await m.run();
       clear(); RUN.onClick=null; RUN.lockBg=true; hud('');
-      txt('완료',{y:40,size:10}); txt('필요하면 재검사로 넘어간다',{y:52,size:3.4,cls:'small'});
-      let choice=null; const eb=document.createElement('div'); eb.className='endbtns';
+      if(RUN.summary){ txt('완료',{y:12,size:6}); txt(RUN.summary,{y:43,size:innerHeight>innerWidth?4.6:3.4,cls:'sum'}); }
+      else { txt('완료',{y:40,size:10}); txt('필요하면 재검사로 넘어간다',{y:52,size:3.4,cls:'small'}); }
+      let choice=null; const eb=document.createElement('div'); eb.className='endbtns'+(RUN.summary?' low':'');
       [['다시','again'],['설정으로','back']].forEach(([l,v])=>{const b=document.createElement('button');b.textContent=l;b.onclick=ev=>{ev.stopPropagation();choice=v};eb.appendChild(b)});
       field().appendChild(eb);
       await waitTap(Infinity,()=>choice); again=(choice==='again'||choice===null);
