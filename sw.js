@@ -1,0 +1,7 @@
+// Retired: clears caches left by the old public build and unregisters itself.
+self.addEventListener('install',()=>self.skipWaiting());
+self.addEventListener('activate',e=>{e.waitUntil((async()=>{
+  const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)));
+  await self.registration.unregister();
+  const cs=await self.clients.matchAll({type:'window'});cs.forEach(c=>c.navigate(c.url));
+})());});
